@@ -18,6 +18,13 @@ export const registerAdmin = async (
       res.status(400).json({ error: 'Admin already exists' });
       return;
     }
+
+    const existingAdminByMobile = await Admin.findOne({ mobileNumber });
+    if (existingAdminByMobile) {
+      res.status(400).json({ error: 'Mobile number already exists' });
+      return;
+    }
+
     const newAdmin = new Admin({
       fullName,
       email,
@@ -163,7 +170,7 @@ export const forgotPasswordAdmin = async (
 
     const resetUrl = `http://localhost:5173/admin-reset-password/${resetToken}`;
 
-    console.log(`Password reset URL: ${resetUrl}`);
+    // console.log(`Password reset URL: ${resetUrl}`);
     await transporter.sendMail({
       to: email,
       subject: 'Password Reset',
