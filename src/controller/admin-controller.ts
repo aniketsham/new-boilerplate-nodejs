@@ -152,15 +152,6 @@ export const forgotPasswordAdmin = async (
       process.env.JWT_SECRET as string,
       { expiresIn: '10m' }
     );
-    // const resetPasswordToken = crypto
-    //   .createHash('sha256')
-    //   .update(resetToken)
-    //   .digest('hex');
-    // const resetPasswordExpire = new Date(Date.now() + 10 * 60 * 1000);
-
-    // admin.resetPasswordToken = resetPasswordToken;
-    // admin.resetPasswordExpire = resetPasswordExpire;
-    // await admin.save();
 
     const transporter = nodemailer.createTransport({
       service: 'gmail',
@@ -216,16 +207,11 @@ export const resetPasswordAdmin = async (
       return;
     }
 
-    // Hash the new password
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Update the admin's password
-    admin.password = hashedPassword;
+    admin.password = password;
     console.log('New password: ', admin.password);
     await admin.save();
     console.log('Password reset successfully', admin.password);
 
-    // Generate a new JWT token
     const token = jwt.sign(
       { id: admin._id, role: admin.role },
       process.env.JWT_SECRET as string,
