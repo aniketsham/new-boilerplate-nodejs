@@ -168,7 +168,7 @@ export const forgotPasswordAdmin = async (
       },
     });
 
-    const resetUrl = `http://localhost:5173/admin-reset-password/${resetToken}`;
+    const resetUrl = `http://localhost:5173/reset-password/${resetToken}`;
 
     // console.log(`Password reset URL: ${resetUrl}`);
     await transporter.sendMail({
