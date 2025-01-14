@@ -56,6 +56,7 @@ export const loginAdmin = async (
       res.status(401).json({ error: 'Invalid Credentials' });
       return;
     }
+
     const isPasswordValid = await admin.comparePassword(password);
     console.log(`Password valid: ${isPasswordValid}`);
     if (!isPasswordValid) {

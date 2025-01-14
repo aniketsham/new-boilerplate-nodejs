@@ -41,10 +41,10 @@ SuperAdminSchema.pre('save', async function (next) {
   next();
 });
 
-SuperAdminSchema.methods.comparePassword = function (
+SuperAdminSchema.methods.comparePassword = async function (
   enteredPassword: string
 ): Promise<boolean> {
-  return bcrypt.compare(enteredPassword, this.password);
+  return await bcrypt.compare(enteredPassword, this.password);
 };
 
 const SuperAdmin = mongoose.model<ISuperAdmin>('SuperAdmin', SuperAdminSchema);

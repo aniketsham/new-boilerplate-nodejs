@@ -21,12 +21,12 @@ export const registerSuperAdmin = async (
       res.status(400).json({ error: 'Super Admin already exists' });
       return;
     }
-    const hashedPassword = await bcrypt.hash(password, 10);
+    //const hashedPassword = await bcrypt.hash(password, 10);
     const superAdmin = new SuperAdmin({
       fullName,
       email,
       mobileNumber,
-      password: hashedPassword,
+      password,
       role: 'superadmin',
     });
     await superAdmin.save();
@@ -50,11 +50,15 @@ export const loginSuperAdmin = async (
     const superAdmin = await SuperAdmin.findOne({ email, role: 'superadmin' });
     if (!superAdmin) {
       res.status(401).json({ error: 'Invalid Credentials' });
+      console.log('A');
       return;
     }
+    console.log(superAdmin.password);
+    console.log(await bcrypt.compare(password, superAdmin.password));
     const isMatch = await superAdmin.comparePassword(password);
     if (!isMatch) {
       res.status(401).json({ error: 'Invalid Credentials' });
+      console.log('A2');
       return;
     }
     const token = jwt.sign(
