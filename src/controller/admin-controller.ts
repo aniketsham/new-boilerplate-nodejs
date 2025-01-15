@@ -2,9 +2,6 @@ import { Request, Response, NextFunction } from 'express';
 import Admin from '../models/admin-model';
 import jwt from 'jsonwebtoken';
 import User from '../models/user-model';
-import bcrypt from 'bcryptjs';
-import crypto from 'crypto';
-import nodemailer from 'nodemailer';
 import { sendResetEmail } from '../helpers/sendResetEmail';
 
 export const registerAdmin = async (
@@ -82,7 +79,7 @@ export const loginAdmin = async (
         id: admin._id,
         fullName: admin.fullName,
         email: admin.email,
-        role: admin.role,
+        mobileNumber: admin.mobileNumber,
       },
       token,
     });
@@ -103,45 +100,6 @@ export const getAllUsers = async (
     res.status(200).json({
       message: 'Users retrieved successfully',
       users: users,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-export const createAdminBySuperAdmin = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
-  try {
-    const { fullName, email, mobileNumber, password } = req.body;
-    const existingAdmin = await Admin.findOne({ email });
-    if (existingAdmin) {
-      res.status(400).json({ error: 'Admin already exists' });
-      return;
-    }
-    const existingAdminByMobile = await Admin.findOne({ mobileNumber });
-    if (existingAdminByMobile) {
-      res.status(400).json({ error: 'Mobile number already exists.' });
-      return;
-    }
-
-    const newAdmin = new Admin({
-      fullName,
-      email,
-      mobileNumber,
-      password,
-    });
-    await newAdmin.save();
-
-    res.status(201).json({
-      message: 'Admin created successfully by Super Admin',
-      admin: {
-        id: newAdmin._id,
-        fullName: newAdmin.fullName,
-        email: newAdmin.email,
-      },
     });
   } catch (error) {
     next(error);

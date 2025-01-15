@@ -14,11 +14,12 @@ export interface Admin extends Document {
   updatedAt: Date;
   deactivatedBy?: string;
   deactivatedAt?: Date;
+  isDeleted?: boolean;
   deletedAt?: Date;
   deletedBy?: string;
-  resetPasswordToken?: string;
-  resetPasswordExpire?: Date;
+
   comparePassword(enteredPassword: string): Promise<boolean>;
+  accessTo: string[];
 }
 
 const adminSchema: Schema<Admin> = new mongoose.Schema({
@@ -34,8 +35,11 @@ const adminSchema: Schema<Admin> = new mongoose.Schema({
   updatedAt: { type: Date, default: Date.now },
   deactivatedBy: { type: String },
   deactivatedAt: { type: Date },
+  isDeleted: { type: Boolean, default: false },
+
   deletedAt: { type: Date },
   deletedBy: { type: String },
+  accessTo: [{ type: String, required: true }],
 });
 
 adminSchema.pre('save', async function (next) {

@@ -8,6 +8,7 @@ import {
 } from '../controller/admin-controller';
 import { registerAdminValidator } from '../validations/validation';
 import { isAuthenticated } from '../middlewares/auth';
+import { accessControl } from '../middlewares/accessControl';
 
 const adminRouter = Router();
 
@@ -23,6 +24,11 @@ adminRouter.get('/protected', isAuthenticated, (req, res) => {
 adminRouter.post('/forgot-password', forgotPasswordAdmin);
 adminRouter.put('/reset-password/:token', resetPasswordAdmin);
 
-adminRouter.get('/users', isAuthenticated, getAllUsers);
+adminRouter.get(
+  '/users',
+  isAuthenticated,
+  accessControl('get-users'),
+  getAllUsers
+);
 
 export default adminRouter;

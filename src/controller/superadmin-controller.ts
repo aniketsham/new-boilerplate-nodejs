@@ -1,9 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
 import SuperAdmin from '../models/superadmin-model';
 import jwt from 'jsonwebtoken';
+import Admin from '../models/admin-model';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import nodemailer from 'nodemailer';
+import { CustomRequest } from '../types/types';
 
 export const registerSuperAdmin = async (
   req: Request,
@@ -56,7 +58,7 @@ export const loginSuperAdmin = async (
     const isMatch = await superAdmin.comparePassword(password);
     if (!isMatch) {
       res.status(401).json({ error: 'Invalid Credentials' });
-      console.log('A2');
+
       return;
     }
     const token = jwt.sign(
@@ -64,7 +66,171 @@ export const loginSuperAdmin = async (
       process.env.JWT_TOKEN || 'test',
       { expiresIn: '1h' }
     );
-    res.status(200).json({ message: 'Login successful', token });
+    res.status(200).json({
+      message: 'Login successful',
+      superAdmin: {
+        id: superAdmin._id,
+        fullName: superAdmin.fullName,
+        email: superAdmin.email,
+        mobileNumber: superAdmin.mobileNumber,
+      },
+      token,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const createAdminBySuperAdmin = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const { fullName, email, mobileNumber, password } = req.body;
+    const existingAdmin = await Admin.findOne({ email });
+    if (existingAdmin) {
+      res.status(400).json({ error: 'Admin already exists' });
+      return;
+    }
+    const existingAdminByMobile = await Admin.findOne({ mobileNumber });
+    if (existingAdminByMobile) {
+      res.status(400).json({ error: 'Mobile number already exists.' });
+      return;
+    }
+
+    const newAdmin = new Admin({
+      fullName,
+      email,
+      mobileNumber,
+      password,
+    });
+    await newAdmin.save();
+
+    res.status(201).json({
+      message: 'Admin created successfully by Super Admin',
+      admin: {
+        id: newAdmin._id,
+        fullName: newAdmin.fullName,
+        email: newAdmin.email,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateAdminBySuperAdmin = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const { adminId } = req.params;
+    const updateData = req.body;
+
+    if (updateData.password) {
+      const hashedPassword = await bcrypt.hash(updateData.password, 10);
+      updateData.password = hashedPassword;
+    }
+
+    const updatedAdmin = await Admin.findByIdAndUpdate(
+      adminId,
+      { ...updateData, updatedAt: Date.now() },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedAdmin) {
+      res.status(404).json({ error: 'Admin not found' });
+      return;
+    }
+
+    res.status(200).json({
+      message: 'Admin updated successfully',
+      admin: updatedAdmin,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteAdminBySuperAdmin = async (
+  req: CustomRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const { adminId } = req.params;
+    const { deletedBy } = req.user?.id;
+
+    if (!deletedBy) {
+      res.status(400).json({ error: 'deletedBy is required' });
+      return;
+    }
+
+    const updatedAdmin = await Admin.findByIdAndUpdate(
+      adminId,
+      {
+        isDeleted: true,
+        isActive: false,
+        deletedAt: new Date(),
+        deletedBy: deletedBy,
+        deactivatedAt: new Date(),
+        deactivatedBy: deletedBy,
+        updatedAt: new Date(),
+      },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedAdmin) {
+      res.status(404).json({ error: 'Admin not found' });
+      return;
+    }
+
+    res.status(200).json({
+      message: 'Admin marked as deleted successfully',
+      admin: updatedAdmin,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getAllAdmins = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const admins = await Admin.find({ isDeleted: false });
+
+    res.status(200).json({
+      message: 'Admins retrieved successfully',
+      admins,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getAdminById = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const { adminId } = req.params;
+    const admin = await Admin.findById(adminId);
+
+    if (!admin || admin.isDeleted) {
+      res.status(404).json({ error: 'Admin not found' });
+      return;
+    }
+
+    res.status(200).json({
+      message: 'Admin retrieved successfully',
+      admin,
+    });
   } catch (error) {
     next(error);
   }

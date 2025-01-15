@@ -1,6 +1,9 @@
 import { Resend } from 'resend';
+import dotenv from 'dotenv';
 
-const resend = new Resend('re_WRcHssQx_4bQ6TWMgcvjfQteWnoRnMx8V');
+dotenv.config();
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 interface apiResponse {
   success: boolean;
