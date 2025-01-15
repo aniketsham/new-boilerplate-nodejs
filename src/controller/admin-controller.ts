@@ -5,6 +5,7 @@ import User from '../models/user-model';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import nodemailer from 'nodemailer';
+import { sendResetEmail } from '../helpers/sendResetEmail';
 
 export const registerAdmin = async (
   req: Request,
@@ -120,6 +121,12 @@ export const createAdminBySuperAdmin = async (
       res.status(400).json({ error: 'Admin already exists' });
       return;
     }
+    const existingAdminByMobile = await Admin.findOne({ mobileNumber });
+    if (existingAdminByMobile) {
+      res.status(400).json({ error: 'Mobile number already exists.' });
+      return;
+    }
+
     const newAdmin = new Admin({
       fullName,
       email,
@@ -160,24 +167,14 @@ export const forgotPasswordAdmin = async (
       { expiresIn: '10m' }
     );
 
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-    });
-
     const resetUrl = `http://localhost:5173/reset-password/${resetToken}`;
 
-    // console.log(`Password reset URL: ${resetUrl}`);
-    await transporter.sendMail({
-      to: email,
-      subject: 'Password Reset',
-      html: `<p>You requested a password reset. Click the link below to reset your password:</p>
-             <a href="${resetUrl}">Reset Password</a>`,
-    });
-
+    const emailResponse = await sendResetEmail(email, resetUrl);
+    if (emailResponse.success) {
+      console.log('Email sent successfully');
+    } else {
+      console.log('Error sending email');
+    }
     res.status(200).json({
       message:
         'Password reset URL generated. Check the server logs for the URL.',

@@ -6,8 +6,6 @@ import {
 import {
   loginSuperAdmin,
   registerSuperAdmin,
-  forgotPasswordSuperAdmin,
-  resetPasswordSuperAdmin,
 } from '../controller/superadmin-controller';
 import { registerAdminValidator } from '../validations/validation';
 import { isAuthenticated } from '../middlewares/auth';
@@ -28,9 +26,6 @@ superadminRouter.get('/protected', isAuthenticated, (req, res) => {
     admin: req.body.role,
   });
 });
-
-superadminRouter.post('/forgot-password', forgotPasswordSuperAdmin);
-superadminRouter.put('/reset-password/:token', resetPasswordSuperAdmin);
 
 superadminRouter.get('/users', isAuthenticated, getAllUsers);
 

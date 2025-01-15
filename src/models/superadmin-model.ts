@@ -24,7 +24,7 @@ const SuperAdminSchema: Schema<ISuperAdmin> = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   mobileNumber: { type: String, required: true },
   password: { type: String, required: true },
-  role: { type: String, required: true, default: 'superadmin' },
+  role: { type: String, required: true, default: 'SuperAdmin' },
   isActive: { type: Boolean, default: true },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
