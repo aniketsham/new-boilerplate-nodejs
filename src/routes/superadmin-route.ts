@@ -22,9 +22,13 @@ superadminRouter.post(
   registerAdminValidator,
   createAdminBySuperAdmin
 );
-superadminRouter.put('/update-admin', isAuthenticated, updateAdminBySuperAdmin);
+superadminRouter.put(
+  '/update-admin/:adminId',
+  isAuthenticated,
+  updateAdminBySuperAdmin
+);
 superadminRouter.delete(
-  '/delete-admin',
+  '/delete-admin/:adminId',
   isAuthenticated,
   deleteAdminBySuperAdmin
 );
