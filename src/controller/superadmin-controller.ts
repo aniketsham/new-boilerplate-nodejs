@@ -66,16 +66,19 @@ export const loginSuperAdmin = async (
       process.env.JWT_TOKEN || 'test',
       { expiresIn: '1h' }
     );
-    res.status(200).json({
-      message: 'Login successful',
-      superAdmin: {
-        id: superAdmin._id,
-        fullName: superAdmin.fullName,
-        email: superAdmin.email,
-        mobileNumber: superAdmin.mobileNumber,
-      },
-      token,
-    });
+    res
+      .status(200)
+      .cookie('token', token)
+      .json({
+        message: 'Login successful',
+        superAdmin: {
+          id: superAdmin._id,
+          fullName: superAdmin.fullName,
+          email: superAdmin.email,
+          mobileNumber: superAdmin.mobileNumber,
+        },
+        token,
+      });
   } catch (error) {
     next(error);
   }

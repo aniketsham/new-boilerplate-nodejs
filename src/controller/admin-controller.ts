@@ -74,16 +74,19 @@ export const loginAdmin = async (
       process.env.JWT_SECRET as string,
       { expiresIn: '1h' }
     );
-    res.status(200).json({
-      message: 'Login successful',
-      admin: {
-        id: admin._id,
-        fullName: admin.fullName,
-        email: admin.email,
-        mobileNumber: admin.mobileNumber,
-      },
-      token,
-    });
+    res
+      .status(200)
+      .cookie('token', token)
+      .json({
+        message: 'Login successful',
+        admin: {
+          id: admin._id,
+          fullName: admin.fullName,
+          email: admin.email,
+          mobileNumber: admin.mobileNumber,
+        },
+        token,
+      });
   } catch (error) {
     console.log(error);
     next(error);
