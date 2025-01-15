@@ -87,7 +87,7 @@ export const createAdminBySuperAdmin = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const { fullName, email, mobileNumber, password } = req.body;
+    const { fullName, email, mobileNumber, password, accessTo } = req.body;
     const existingAdmin = await Admin.findOne({ email });
     if (existingAdmin) {
       res.status(400).json({ error: 'Admin already exists' });
@@ -104,6 +104,7 @@ export const createAdminBySuperAdmin = async (
       email,
       mobileNumber,
       password,
+      accessTo,
     });
     await newAdmin.save();
 
@@ -113,6 +114,8 @@ export const createAdminBySuperAdmin = async (
         id: newAdmin._id,
         fullName: newAdmin.fullName,
         email: newAdmin.email,
+        mobileNumber: newAdmin.mobileNumber,
+        accessTo: newAdmin.accessTo,
       },
     });
   } catch (error) {

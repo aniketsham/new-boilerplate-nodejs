@@ -5,6 +5,7 @@ import {
   loginAdmin,
   registerAdmin,
   resetPasswordAdmin,
+  updateAdmin,
 } from '../controller/admin-controller';
 import { registerAdminValidator } from '../validations/validation';
 import { isAuthenticated } from '../middlewares/auth';
@@ -23,7 +24,7 @@ adminRouter.get('/protected', isAuthenticated, (req, res) => {
 
 adminRouter.post('/forgot-password', forgotPasswordAdmin);
 adminRouter.put('/reset-password/:token', resetPasswordAdmin);
-
+adminRouter.put('/update-admin', isAuthenticated, updateAdmin);
 adminRouter.get(
   '/users',
   isAuthenticated,

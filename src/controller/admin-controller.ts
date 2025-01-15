@@ -3,6 +3,7 @@ import Admin from '../models/admin-model';
 import jwt from 'jsonwebtoken';
 import User from '../models/user-model';
 import { sendResetEmail } from '../helpers/sendResetEmail';
+import { CustomRequest } from '../types/types';
 
 export const registerAdmin = async (
   req: Request,
@@ -183,6 +184,45 @@ export const resetPasswordAdmin = async (
     res.status(200).json({ message: 'Password reset successfully', token });
   } catch (error) {
     console.error('Error in resetPasswordAdmin:', error);
+    next(error);
+  }
+};
+
+export const updateAdmin = async (
+  req: CustomRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const { adminId } = req.user?.id;
+    const { fullName, email, mobileNumber } = req.body;
+
+    interface adminUpdateType {
+      fullName?: string;
+      email?: string;
+      mobileNumber?: string;
+    }
+    const updateData: Partial<adminUpdateType> = {};
+    if (fullName) updateData.fullName = fullName;
+    if (email) updateData.email = email;
+    if (mobileNumber) updateData.mobileNumber = mobileNumber;
+
+    const updatedAdmin = await Admin.findByIdAndUpdate(
+      adminId,
+      { ...updateData, updatedAt: Date.now() },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedAdmin) {
+      res.status(404).json({ error: 'Admin not found' });
+      return;
+    }
+
+    res.status(200).json({
+      message: 'Admin updated successfully',
+      admin: updatedAdmin,
+    });
+  } catch (error) {
     next(error);
   }
 };
