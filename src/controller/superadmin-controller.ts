@@ -201,6 +201,7 @@ export const deleteAdminBySuperAdmin = async (
     const { adminId } = req.params;
     if (!adminId) {
       res.status(400).json({ error: 'Admin id is required' });
+      return;
     }
     const deletedAdmin = await Admin.findById(adminId);
     if (!deletedAdmin) {
@@ -212,7 +213,9 @@ export const deleteAdminBySuperAdmin = async (
       message: 'Admin marked as deleted successfully',
     });
   } catch (error) {
-    res.status(500).json({ error: error });
+    if (error instanceof Error) {
+      res.status(500).json({ error: error.message });
+    }
   }
 };
 
