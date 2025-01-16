@@ -135,23 +135,18 @@ export const updateAdminBySuperAdmin = async (
     const { adminId } = req.params;
     const { fullName, email, mobileNumber, password, accessTo } = req.body;
 
-    const updateData = {
-      fullName,
-      email,
-      mobileNumber,
-      password,
-      accessTo,
-    };
-    if (updateData.password) {
-      const hashedPassword = await bcrypt.hash(updateData.password, 10);
-      updateData.password = hashedPassword;
-    }
+    const updateData: any = {};
+    if (fullName) updateData.fullName = fullName;
+    if (email) updateData.email = email;
+    if (mobileNumber) updateData.mobileNumber = mobileNumber;
+    if (accessTo) updateData.accessTo = accessTo;
+    if (password) updateData.password = await bcrypt.hash(password, 10);
+    updateData.updatedAt = Date.now();
 
-    const updatedAdmin = await Admin.findByIdAndUpdate(
-      adminId,
-      { ...updateData, updatedAt: Date.now() },
-      { new: true, runValidators: true }
-    );
+    const updatedAdmin = await Admin.findByIdAndUpdate(adminId, updateData, {
+      new: true,
+      runValidators: true,
+    });
 
     if (!updatedAdmin) {
       res.status(404).json({ error: 'Admin not found' });
