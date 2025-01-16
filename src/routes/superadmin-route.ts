@@ -8,6 +8,7 @@ import {
   deleteAdminBySuperAdmin,
   getAllAdmins,
   getAdminById,
+  updateAccessbySuperAdmin,
 } from '../controller/superadmin-controller';
 import { registerAdminValidator } from '../validations/validation';
 import { isAuthenticated } from '../middlewares/auth';
@@ -32,7 +33,11 @@ superadminRouter.delete(
   isAuthenticated,
   deleteAdminBySuperAdmin
 );
-
+superadminRouter.put(
+  '/update-access/:adminId',
+  isAuthenticated,
+  updateAccessbySuperAdmin
+);
 superadminRouter.get('/get-all-admin', isAuthenticated, getAllAdmins);
 superadminRouter.get('/get-admin/:adminId', isAuthenticated, getAdminById);
 superadminRouter.get('/protected', isAuthenticated, (req, res) => {
