@@ -167,35 +167,15 @@ export const deleteAdminBySuperAdmin = async (
 ): Promise<void> => {
   try {
     const { adminId } = req.params;
-    const { deletedBy } = req.user?.id;
 
-    if (!deletedBy) {
-      res.status(400).json({ error: 'deletedBy is required' });
-      return;
-    }
-
-    const updatedAdmin = await Admin.findByIdAndUpdate(
-      adminId,
-      {
-        isDeleted: true,
-        isActive: false,
-        deletedAt: new Date(),
-        deletedBy: deletedBy,
-        deactivatedAt: new Date(),
-        deactivatedBy: deletedBy,
-        updatedAt: new Date(),
-      },
-      { new: true, runValidators: true }
-    );
-
-    if (!updatedAdmin) {
+    const deletedAdmin = await Admin.findById(adminId);
+    if (!deletedAdmin) {
       res.status(404).json({ error: 'Admin not found' });
       return;
     }
-
+    await deletedAdmin.deleteOne();
     res.status(200).json({
       message: 'Admin marked as deleted successfully',
-      admin: updatedAdmin,
     });
   } catch (error) {
     next(error);
@@ -208,7 +188,7 @@ export const getAllAdmins = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const admins = await Admin.find({ isDeleted: false });
+    const admins = await Admin.find();
 
     res.status(200).json({
       message: 'Admins retrieved successfully',
@@ -228,7 +208,7 @@ export const getAdminById = async (
     const { adminId } = req.params;
     const admin = await Admin.findById(adminId);
 
-    if (!admin || admin.isDeleted) {
+    if (!admin) {
       res.status(404).json({ error: 'Admin not found' });
       return;
     }

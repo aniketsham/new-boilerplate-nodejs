@@ -18,7 +18,9 @@ export const registerAdmin = async (
       return;
     }
 
-    const existingAdminByMobile = await Admin.findOne({ mobileNumber });
+    const existingAdminByMobile = await Admin.findOne({
+      mobileNumber,
+    });
     if (existingAdminByMobile) {
       res.status(400).json({ error: 'Mobile number already exists' });
       return;

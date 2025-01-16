@@ -12,19 +12,13 @@ export interface Admin extends Document {
   isVerified: boolean;
   createdAt: Date;
   updatedAt: Date;
-  deactivatedBy?: string;
-  deactivatedAt?: Date;
-  isDeleted?: boolean;
-  deletedAt?: Date;
-  deletedBy?: string;
-
   comparePassword(enteredPassword: string): Promise<boolean>;
   accessTo: string[];
 }
 
 const adminSchema: Schema<Admin> = new mongoose.Schema({
   fullName: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
+  email: { type: String, required: true },
   mobileNumber: { type: String, required: true },
   password: { type: String, required: true },
   role: { type: String, required: true, default: 'Admin' },
@@ -33,12 +27,6 @@ const adminSchema: Schema<Admin> = new mongoose.Schema({
   isVerified: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
-  deactivatedBy: { type: String },
-  deactivatedAt: { type: Date },
-  isDeleted: { type: Boolean, default: false },
-
-  deletedAt: { type: Date },
-  deletedBy: { type: String },
   accessTo: [{ type: String, required: true }],
 });
 
