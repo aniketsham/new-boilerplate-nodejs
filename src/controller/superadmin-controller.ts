@@ -64,7 +64,7 @@ export const loginSuperAdmin = async (
     const token = jwt.sign(
       { id: superAdmin._id, role: superAdmin.role },
       process.env.JWT_TOKEN || 'test',
-      { expiresIn: '1h' }
+      { expiresIn: '7d' }
     );
     res
       .status(200)
@@ -133,8 +133,15 @@ export const updateAdminBySuperAdmin = async (
 ): Promise<void> => {
   try {
     const { adminId } = req.params;
-    const updateData = req.body;
+    const { fullName, email, mobileNumber, password, accessTo } = req.body;
 
+    const updateData = {
+      fullName,
+      email,
+      mobileNumber,
+      password,
+      accessTo,
+    };
     if (updateData.password) {
       const hashedPassword = await bcrypt.hash(updateData.password, 10);
       updateData.password = hashedPassword;
@@ -159,6 +166,31 @@ export const updateAdminBySuperAdmin = async (
     next(error);
   }
 };
+export const updateAccessbySuperAdmin = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { adminId } = req.params;
+    const { accessTo } = req.body;
+    const updatedAdmin = await Admin.findByIdAndUpdate(
+      adminId,
+      { accessTo },
+      { new: true, runValidators: true }
+    );
+    if (!updatedAdmin) {
+      res.status(404).json({ error: 'Admin not found' });
+      return;
+    }
+    res.status(200).json({
+      message: 'Admin updated successfully',
+      admin: updatedAdmin,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 
 export const deleteAdminBySuperAdmin = async (
   req: CustomRequest,
@@ -167,7 +199,9 @@ export const deleteAdminBySuperAdmin = async (
 ): Promise<void> => {
   try {
     const { adminId } = req.params;
-
+    if (!adminId) {
+      res.status(400).json({ error: 'Admin id is required' });
+    }
     const deletedAdmin = await Admin.findById(adminId);
     if (!deletedAdmin) {
       res.status(404).json({ error: 'Admin not found' });
@@ -178,7 +212,7 @@ export const deleteAdminBySuperAdmin = async (
       message: 'Admin marked as deleted successfully',
     });
   } catch (error) {
-    next(error);
+    res.status(500).json({ error: error });
   }
 };
 
