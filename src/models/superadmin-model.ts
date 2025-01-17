@@ -10,12 +10,6 @@ export interface ISuperAdmin extends Document {
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
-  deactivatedBy?: string;
-  deactivatedAt?: Date;
-  deletedAt?: Date;
-  deletedBy?: string;
-  resetPasswordToken?: string;
-  resetPasswordExpires?: number;
   comparePassword(enteredPassword: string): Promise<boolean>;
 }
 
@@ -28,10 +22,6 @@ const SuperAdminSchema: Schema<ISuperAdmin> = new mongoose.Schema({
   isActive: { type: Boolean, default: true },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
-  deactivatedBy: { type: String },
-  deactivatedAt: { type: Date },
-  deletedAt: { type: Date },
-  deletedBy: { type: String },
 });
 
 SuperAdminSchema.pre('save', async function (next) {

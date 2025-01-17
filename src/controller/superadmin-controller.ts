@@ -62,7 +62,7 @@ export const loginSuperAdmin = async (
       return;
     }
     const token = jwt.sign(
-      { id: superAdmin._id, role: superAdmin.role },
+      { id: superAdmin._id, role: 'SuperAdmin' },
       process.env.JWT_TOKEN || 'test',
       { expiresIn: '7d' }
     );
